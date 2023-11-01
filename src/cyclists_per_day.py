@@ -35,6 +35,7 @@ def split_date_continues():
     return pd.concat([split_data, df.iloc[:,1:]], axis = 1)
 
 def cyclists_per_day():
+    df = split_date_continues()
     pass
 
 def main():
