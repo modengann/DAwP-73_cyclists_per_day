@@ -4,58 +4,35 @@ from numpy.core.numeric import outer
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def split_date():
-    pass
+#Do not modify
+def split_date(df):
+    split_data = df["Päivämäärä"].str.split(expand=True)
+    split_data.columns = ["Weekday", "Day", "Month", "Year", "Hour"]
+    split_data["Hour"] = split_data["Hour"].str[0:2]
+    day_mapper = {"ma" : "Mon", "ti" : "Tue", "ke" : "Wed", 
+                  "to" : "Thu", "pe" : "Fri", "la" : "Sat", "su" : "Sun"}
+    split_data.replace(day_mapper, inplace=True)
+    month_mapper = {
+        "tammi": 1, "helmi" : 2, "maalis" : 3, "huhti" : 4, "touko" : 5,
+        "kesä" : 6, "heinä" : 7, "elo" : 8, "syys" : 9, "loka" : 10, "marras" : 11,
+        "joulu" : 12
+    }
+    split_data.replace(month_mapper, inplace= True)
+    split_data = split_data.astype({"Day" : int, "Month" : int, "Year" : int, "Hour": int})
+    return split_data
 
+#Do not modify
+def load_data():
+    df = pd.read_csv("src/Helsingin_pyorailijamaarat.csv", sep = ";")
+    df.dropna(how = "all", axis = 1, inplace = True)
+    df.dropna(how = "all", inplace = True)
+    return df
+
+#Do not modify
 def split_date_continues():
-    # reading data from csv
-    df = pd.read_csv('src/Helsingin_pyorailijamaarat.csv', sep=";")
-
-    # dropping unecessary rows and columns
-    df = df.dropna(how="all")
-    df = df.dropna(axis=1, how="all")
-
-    # extracting first column to separate var
-    col = df.iloc[:, 0]
-    df = df.drop(df.columns[0], axis=1)
-
-    # splitting data, translating
-    col = col.str.split(expand=True)
-    col.columns = ["Weekday", "Day", "Month", "Year", "Hour"]
-    col['Hour'] = col['Hour'].str[0:2]
-
-    weekdays = {
-        "ma": "Mon",
-        "ti": "Tue",
-        "ke": "Wed",
-        "to": "Thu",
-        "pe": "Fri",
-        "la": "Sat",
-        "su": "Sun"
-    }
-
-    months = {
-        "tammi": 1,
-        "helmi": 2,
-        "maalis": 3,
-        "huhti": 4,
-        "touko": 5,
-        "kesä": 6,
-        "heinä": 7,
-        "elo": 8,
-        "syys": 9,
-        "loka": 10,
-        "marras": 11,
-        "joulu": 12,
-    }
-
-    col["Weekday"] = col["Weekday"].map(weekdays)
-    col["Month"] = col["Month"].map(months)
-    col = col.astype({"Weekday": object, "Day": int, "Month": int, "Year": int, "Hour": int})
-
-    res = pd.concat([col, df], axis=1)
-
-    return res
+    df = load_data()
+    split_data = split_date(df)
+    return pd.concat([split_data, df.iloc[:,1:]], axis = 1)
 
 def cyclists_per_day():
     pass
